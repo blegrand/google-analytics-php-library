@@ -5,6 +5,6 @@ Based on the work of Stu Miller : http://www.stumiller.me/implementing-google-an
 
 Currently in the form of a Wordpress Plugin I use on a few projects. Feel free to improve it, as I'm sure there's a lot to improve here.
 
-Author : Baptiste Legrand
-Mail : baptiste.legrand@gmail.com
-Twitter : @Baptiste_L
+- Author : Baptiste Legrand
+- Mail : baptiste.legrand@gmail.com
+- Twitter : @Baptiste_L
