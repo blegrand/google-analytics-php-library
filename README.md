@@ -8,6 +8,11 @@ I claim no ownership on this code, as it's largely based on the work of Stu Mill
 - Mail : baptiste.legrand@gmail.com
 - Twitter : @Baptiste_L
 
+# Setup & Configuration #
+- download the file and put it in the wp-content/plugins/ directory.
+- make sure you use the correct value for the GA_PROPERTY_ID constant : it has to be your Google Analytics property ID
+
+
 # Pull request #
 I'd like to keep it simple. 
 - If you want to make this plugin more complete ( = add more features), then maybe fork it and make it an other project. 
