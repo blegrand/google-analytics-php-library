@@ -75,7 +75,7 @@ function GA_send_hit($data = null)
 		);
 
 
-		// Register a PAGEVIEW
+		// Prepare a PAGEVIEW
 		if ($data['t'] === 'pageview')
 		{
 			$args['t'] = $data['t'];
@@ -84,7 +84,7 @@ function GA_send_hit($data = null)
 		}
 
 
-		// Register an EVENT
+		// Prepare an EVENT
 		elseif($data['t'] === "event")
 		{
 			$args['t'] = $data['t'];
@@ -95,36 +95,44 @@ function GA_send_hit($data = null)
 		}
 
 
-		// Register a TRANSACTION
+		// Prepare a TRANSACTION Hit (should be followed by a Item hit)
 		elseif($data['t'] === "transaction")
 		{
-			$args['ti'] = $data['ti'];			// Transaction ID. Required.
-			$args['tr'] = $data['tr'];			// Transaction : Montant TTC.
-			$args['tt'] = $data['tt'];			// Transaction : Tax
-			$args['pa'] = 'purchase';			// Product action (purchase). Required.
-			$args['ip'] = $data['tr'];			// Item Price
-			$args['iq'] = 1;					// Item Qty
+			$args['t'] = $data['t'];
+			$args['ti'] = $data['ti'];
+			$args['tr'] = $data['tr'];
+			$args['tt'] = $data['tt'];
+		}
+
+		// Prepare an ITEM Hit
+		elseif($data['t'] === "item")
+		{
+			$args['t'] = $data['t'];
+			$args['ti'] = $data['ti'];
+			$args['in'] = $data['in'];
+			$args['ip'] = $data['ip'];
+			$args['iq'] = $data['iq'];
 		}
 
 
-		// NOW SEND HIT TO GA
+		// SEND HIT TO GA
 		if ( $args )
 		{
 			$url = 'http://www.google-analytics.com/collect?';
-		    $args = http_build_query($args);
+			$args = http_build_query($args);
 
 			// You might want to log the payload sent to Google Analytics, in order to test it with Google Measurement Protocol Hit Validator
 
 			$args = utf8_encode($args); // The payload must be UTF-8 encoded.
-			$result = wp_remote_get($url.$args ); // careful, wp_remote_get is a wordpress function
+			$result = wp_remote_get($url.$args ); // careful, wp_remote_get is a wordpress function, use another one if you're not under Wordpress
 			return $result;
 		}
 	}
 }
 
 
-// Send a transaction
-function GA_send_transaction($transaction_ID, $transaction_ttc, $transaction_tax, $product_name)
+// Send TRANSACTION hit (should be followed by a ITEM hit with the same transaction_ID)
+function GA_send_transaction($transaction_ID, $transaction_ttc, $transaction_tax)
 {
 	$args = array
 	(
@@ -132,13 +140,25 @@ function GA_send_transaction($transaction_ID, $transaction_ttc, $transaction_tax
 		'ti' => $transaction_ID,	// Transaction ID. Required.
 		'tr' => $transaction_ttc,	// Montant TTC.
 		'tt' => $transaction_tax,	// Tax
-		'pr1nm' => $product_name,	// Product 1 name.
+	);
+	return GA_send_hit($args);
+}
+
+// Send ITEM hit (should follow a TRANSACTION hit) & should have the same transaction_ID
+function GA_send_item($transaction_ID, $item_name, $item_price, $item_quantity = 1)
+{
+	$args = array(
+		't' => 'item',
+		'ti' => $transaction_ID,	// Same Transaction ID as for transaction hit
+		'in' => $item_name,			// Item name (string)
+		'ip' => $item_price,		// Item price
+		'iq' => $item_quantity,		// Item Quantity
 	);
 	return GA_send_hit($args);
 }
 
 
-// Send an event
+// Send EVENT hit
 function GA_send_event($category, $action, $label, $value = NULL)
 {
 	$args = array
@@ -153,7 +173,7 @@ function GA_send_event($category, $action, $label, $value = NULL)
 }
 
 
-// Send a pageview
+// Send VIRTUAL PAGEVIEW hit
 function GA_send_pageview($title, $slug)
 {
 	$args = array
